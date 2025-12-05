@@ -10,6 +10,9 @@
 % SECTION 1: COFFEE DISEASES (100 Total)
 % ============================================================================
 
+%declare the dynamic predicates
+:- dynamic present/1 .
+
 % Fungal Diseases (40)
 % disease(crop, disease_name, type(fungal))
 disease(coffee, coffee_rust, fungal).
