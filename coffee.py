@@ -7,18 +7,25 @@ prolog.consult("coffee.pl")
 def diagnose(symptom_input):
     list(prolog.query("retractall(present(_))"))
     prolog.assertz(f"present({symptom_input})") #adds the fact present(Fact) to the end of the kb and we can now reason with it
+    
+    #query the disease based on the input
     result = list(prolog.query("has_disease(Coffee, Disease)"))
     if result:
-        return result[0]["Disease"]
+        disease = result[0]["Disease"]
+        disease_type = list(prolog.query(f"disease_type({disease}, Type)"))
+        if disease_type:
+            d_type = disease_type[0]["Type"]
+        else:
+            d_type = "unknown"
+
+        return disease, d_type
+    return None, None
 
 def preventive_measure():
     result = list(prolog.query("get_preventive_measures(Measure)"))
     if result:
         return [res["Measure"] for res in result]
     return None
-
-#add the control measures
-#def control_measure(disease, disease_symptom=None)
 
 def get_all_diseases():
     result = list(prolog.query(f"all_diseases(Diseases)"))
@@ -38,9 +45,10 @@ if st.button("Diagnose"):
     if not symptom_input:
         st.error("Please enter observable symptom")
     else:
-        disease = diagnose(symptom_input)
+        disease, d_type = diagnose(symptom_input)
         if disease:
-            st.success(f"Disease detected: {disease} ")
+            st.success(f"Disease detected: {disease.replace('_', ' ')}")
+            st.success(f"Disease type: {d_type.replace('_', ' ')}")
             st.write("Recommended preventive measures for coffee plant.")
             measures = preventive_measure()
             for measure in measures: 
