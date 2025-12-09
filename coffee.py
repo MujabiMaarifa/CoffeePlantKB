@@ -7,7 +7,7 @@ prolog.consult("coffee.pl")
 def diagnose(symptom_input):
     list(prolog.query("retractall(present(_))"))
     prolog.assertz(f"present({symptom_input})") #adds the fact present(Fact) to the end of the kb and we can now reason with it
-    
+
     #query the disease based on the input
     result = list(prolog.query("has_disease(Coffee, Disease)"))
     if result:
@@ -79,9 +79,10 @@ if st.button("Diagnose"):
 
             st.subheader("Preventive measures for coffee plant.")
 
-            measures = preventive_measure() #preventive_measures returns a list 
-            for measure in measures: 
-                st.info(f"- {measure.replace('_', ' ')}")
+            with st.expander("Healthy Practices for Coffee Farming"):
+                measures = preventive_measure()
+                for measure in measures:
+                    st.info(f"- {measure.replace('_', ' ')}")
         else:
             st.error("No disease matched the input symptom")
 
