@@ -21,6 +21,25 @@ def diagnose(symptom_input):
         return disease, d_type
     return None, None
 
+def recommend_drug(disease):
+    d_category = list(prolog.query(f"disease_type({disease}, Type)"))
+    d_result = d_category[0]["Type"]
+    if d_result == "fungal":
+        drug_recommend = list(prolog.query(f"recommend_fungicide({disease}, Fungicide)"))
+
+    elif d_result == "bacterial":
+        drug_recommend = list(prolog.query(f"recommend_bactericide({disease}, Bactericide)"))
+
+    elif d_result == "nematode":
+        drug_recommend = list(prolog.query(f"recommend_nematicide({disease}, Nematicide)"))
+
+#    elif d_category == "viral":
+#    drug_recommend = "Will be discovered soon"
+    else:
+        drug_recommend = "Still under research."
+
+    return drug_recommend
+
 def preventive_measure():
     result = list(prolog.query("get_preventive_measures(Measure)"))
     if result:
@@ -38,7 +57,7 @@ st.title("☕ Coffee Plant Rule Based Expert System")
 st.write("Enter a symptom to diagnose the disease and get preventive measures.")
 
 #grab user input based on the farmers observable features on the crop
-symptom_input = st.text_input("Enter the crop symptom (e.g yellowing_leaves, stunted_growth): ")
+symptom_input = st.text_input("Enter the crop symptom (e.g yellowing_leaves, stunted_growth, swollen stems, linear streaks): ")
 symptom_input = symptom_input.strip().lower().replace(" ", "_")
 
 if st.button("Diagnose"):
@@ -46,11 +65,21 @@ if st.button("Diagnose"):
         st.error("Please enter observable symptom")
     else:
         disease, d_type = diagnose(symptom_input)
+        drugs= recommend_drug(disease)
+
         if disease:
             st.success(f"Disease detected: {disease.replace('_', ' ')}")
-            st.success(f"Disease type: {d_type.replace('_', ' ')}")
-            st.write("Recommended preventive measures for coffee plant.")
-            measures = preventive_measure()
+            st.info(f"Disease type: {d_type.replace('_', ' ')}")
+            st.subheader("Recommended drugs")
+            for d in drugs:
+                drug_type = list(d.keys())[0]
+                d_name = d[drug_type]
+
+                st.info(f"{drug_type} : {d_name.replace('_', ' ')}")
+
+            st.subheader("Preventive measures for coffee plant.")
+
+            measures = preventive_measure() #preventive_measures returns a list 
             for measure in measures: 
                 st.info(f"- {measure.replace('_', ' ')}")
         else:
